@@ -5,7 +5,8 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   # inputs.nixpkgs.url = "path:/home/badele/ghq/github.com/badele/fork-nixpkgs";
 
-  outputs = { self, nixpkgs, }:
+  outputs =
+    { self, nixpkgs }:
     let
       ###########################################################################
       # Lanuages Activation
@@ -30,18 +31,27 @@
       typescript_support = true;
       yaml_support = true;
 
-      supportedSystems =
-        [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-      forEachSupportedSystem = f:
-        nixpkgs.lib.genAttrs supportedSystems (system:
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      forEachSupportedSystem =
+        f:
+        nixpkgs.lib.genAttrs supportedSystems (
+          system:
           f {
             pkgs = import nixpkgs {
               inherit system;
               config.allowUnfree = true; # For terraform
             };
-          });
-    in {
-      devShells = forEachSupportedSystem ({ pkgs }:
+          }
+        );
+    in
+    {
+      devShells = forEachSupportedSystem (
+        { pkgs }:
         let
           ###########################################################################
           # Lanuages support
@@ -59,8 +69,7 @@
 
           deno_packages = with pkgs; [ deno ];
 
-          dockerfile_packages = with pkgs;
-            [ nodePackages.dockerfile-language-server-nodejs ];
+          dockerfile_packages = with pkgs; [ nodePackages.dockerfile-language-server-nodejs ];
 
           javascript_packages = with pkgs; [ nodePackages.eslint ];
 
@@ -70,13 +79,22 @@
             nodePackages.jsonlint
           ];
 
-          ledger_packages = with pkgs; [ ledger hledger ];
+          ledger_packages = with pkgs; [
+            ledger
+            hledger
+          ];
 
           # Latex
           tex_packages = with pkgs; [
             (texlive.combine {
               inherit (texlive)
-                scheme-medium tabularray ninecolors msg lipsum pgf;
+                scheme-medium
+                tabularray
+                ninecolors
+                msg
+                lipsum
+                pgf
+                ;
             })
             biber
             pplatex
@@ -115,12 +133,16 @@
             deadnix
             nixd
             nil
-            nixfmt
+            nixfmt-rfc-style
             nixpkgs-fmt
             statix
           ];
 
-          openscad_packages = with pkgs; [ openscad openscad-lsp clang ];
+          openscad_packages = with pkgs; [
+            openscad
+            openscad-lsp
+            clang
+          ];
 
           python_packages = with pkgs; [
             ruff
@@ -128,15 +150,23 @@
               (ps: with ps; [ pycodestyle pydocstyle pylint mypy vulture autoflake autopep8 ]))
           ];
 
-          scala_packages = with pkgs; [ sbt metals ];
+          scala_packages = with pkgs; [
+            sbt
+            metals
+          ];
 
-          terraform_packages = with pkgs; [ terraform terraform-ls ];
+          terraform_packages = with pkgs; [
+            terraform
+            terraform-ls
+          ];
 
           typescript_packages = with pkgs; [ deno ];
 
           yaml_packages = with pkgs; [ yaml-language-server ];
-        in with pkgs;
-        with lib; {
+        in
+        with pkgs;
+        with lib;
+        {
           default = pkgs.mkShell {
             shellHook = ''
                 export VIDE_ANSIBLE_SUPPORT=${boolToString ansible_support}
@@ -160,7 +190,8 @@
               export VIDE_YAML_SUPPORT=${boolToString yaml_support}
             '';
 
-            packages = with pkgs;
+            packages =
+              with pkgs;
               [
                 # Conventional commit
                 cocogitto
@@ -186,10 +217,13 @@
                 tree-sitter
                 xclip
 
+                claude-code
+
                 # Misc language
                 # efm-langserver
                 nodePackages.prettier
-              ] ++ optionals ansible_support ansible_packages
+              ]
+              ++ optionals ansible_support ansible_packages
               ++ optionals bash_support bash_packages
               ++ optionals d2_support d2_packages
               ++ optionals deno_support deno_packages
@@ -209,6 +243,7 @@
               ++ optionals typescript_support typescript_packages
               ++ optionals yaml_support yaml_packages;
           };
-        });
+        }
+      );
     };
 }
