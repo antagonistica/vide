@@ -52,6 +52,7 @@
             nodePackages.bash-language-server
             shellcheck
             shfmt
+            shellharden
           ];
 
           d2_packages = with pkgs; [ d2 ];
@@ -124,7 +125,7 @@
           python_packages = with pkgs; [
             ruff
             (python3.withPackages
-              (ps: with ps; [ pycodestyle pydocstyle pylint mypy vulture ]))
+              (ps: with ps; [ pycodestyle pydocstyle pylint mypy vulture autoflake autopep8 ]))
           ];
 
           scala_packages = with pkgs; [ sbt metals ];
