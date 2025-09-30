@@ -12,7 +12,7 @@ return {
 		opts = {
 			servers = {
 				nixd = {},
-				nil_ls = {}
+				-- nil_ls = {}
 			},
 		},
 	},
